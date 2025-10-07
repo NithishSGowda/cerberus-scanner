@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>// CERBERUS-SCANNER</title>
+    <style>
+        /* CSS for Hacker Theme */
+        body {
+            background-color: #0A0A0A;
+            color: #00FF41; /* Neon Green */
+            font-family: 'Source Code Pro', 'Fira Code', monospace;
+            padding: 20px;
+        }
+        h1 {
+            color: #FF00FF; /* Magenta Accent */
+            text-shadow: 0 0 5px #FF00FF, 0 0 10px #FF00FF;
+            font-size: 2em;
+        }
+        .terminal {
+            background-color: #1A1A1A;
+            border: 2px solid #00FF41;
+            padding: 20px;
+            box-shadow: 0 0 10px #00FF41;
+        }
+        input[type="text"], input[type="number"] {
+            background-color: #0A0A0A;
+            color: #00FF41;
+            border: 1px dashed #00FF41;
+            padding: 8px;
+            width: 90%;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #00FF41;
+            color: #1A1A1A;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #009900;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        .warning {
+            color: #FFA500;
+            border: 1px solid #FFA500;
+            padding: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>// CERBERUS-SCANNER V1.0.0</h1>
+    <p>Target acquisition protocol initiated. Report will download upon scan and AI analysis completion.</p>
+
+    <div class="warning">
+        **DISCLAIMER:** This tool performs network requests. Use only on targets for which you have explicit, written permission.
+    </div>
+
+    <div class="terminal">
+        <form method="POST" action="/">
+            <label for="url">> Enter Target URL (e.g., https://example.com):</label>
+            <input type="text" id="url" name="url" required value="http://localhost:80">
+
+            <label for="threads">> Set Thread Count (Default: 10):</label>
+            <input type="number" id="threads" name="threads" value="10" min="1" max="100">
+            
+            <label for="timeout">> Set Request Timeout (Seconds, Default: 7):</label>
+            <input type="number" id="timeout" name="timeout" value="7" min="1">
+            
+            <button type="submit">> INITIATE SCAN AND AI REPORT GENERATION</button>
+        </form>
+    </div>
+
+</body>
+</html>
