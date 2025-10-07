@@ -1,5 +1,5 @@
-# requirements.txt
 Flask
 requests
 fpdf
 google-genai
+gunicorn
