@@ -2,5 +2,3 @@ Flask
 requests
 fpdf
 google-genai
-# gunicorn # REMOVE GUNICORN
-vercel-python # ADD VERCEL BRIDGE
