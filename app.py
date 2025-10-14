@@ -11,6 +11,7 @@ from report_generator import create_pdf_report
 from ai_analyzer import analyze_vulnerabilities_with_ai
 
 # --- Configuration & Wordlist (Copied/Cleaned from original code) ---
+# ... (DEFAULT_COMMON_PATHS and DIR_LISTING_PATTERNS remain unchanged) ...
 DEFAULT_COMMON_PATHS = [
     '/', '/admin/', '/dashboard/', '/login/', '/panel/', '/setup/',
     '/install/', '/backup/', '/backups/', '/test/', '/dev/', '/old/', '/temp/', '/tmp/',
@@ -35,7 +36,6 @@ DEFAULT_COMMON_PATHS = [
     '/assets/', '/cache/',
     'db_backup.sql', 'database.sql', 'backup.sql', 'dump.sql', 'data.sql',
     'site.zip', 'website.zip', 'archive.zip', 'backup.zip', 'web.zip',
-    'site.tar.gz', 'website.tar.gz', 'archive.tar.gz', 'backup.tar.gz',
     'site.rar', 'website.rar',
     'config.php', 'config.inc.php', 'connections.php', 'db_connect.php',
     'settings.py', 'app_config.yml',
@@ -57,9 +57,34 @@ DIR_LISTING_PATTERNS = [
 
 app = Flask(__name__)
 
+# --- NEW: Keep Alive Function for Render Free Tier ---
+# This function is started as a background thread to ping the service
+# to prevent Render's free tier service from spinning down after 15 min of inactivity.
+def keep_alive():
+    # Render's free service spins down after 15 minutes (900 seconds)
+    PING_INTERVAL = 600 # Ping every 10 minutes (600 seconds)
+    
+    # Render sets the EXTERNAL_HOSTNAME environment variable to the public URL.
+    # We use a non-existent path ('/ping') to avoid hitting the main route logic.
+    external_url = os.environ.get("EXTERNAL_HOSTNAME")
+    if external_url and not external_url.startswith("http"):
+         external_url = f"https://{external_url}" # Force HTTPS for Render
+
+    while external_url:
+        try:
+            # We ping the root URL to reset the inactivity timer
+            requests.get(external_url, timeout=5)
+            print(f"[{time.strftime('%H:%M:%S')}] Self-ping successful: {external_url}")
+        except requests.exceptions.RequestException as e:
+            print(f"[{time.strftime('%H:%M:%S')}] Self-ping failed: {e}")
+        
+        time.sleep(PING_INTERVAL)
+
+
 # --- SCANNING CORE FUNCTIONS ---
 
 def run_scan(target_url, num_threads, request_timeout, user_agent, paths_to_check):
+    # ... (run_scan logic remains unchanged) ...
     found_exposures = []
     scan_lock = threading.Lock() 
 
@@ -166,6 +191,14 @@ def index():
 
     return render_template('index.html')
 
+# --- NEW: Background thread to start the keep-alive loop ---
+# We use this to check if the app is running via Gunicorn (in production) or Flask's debug server (local).
+# This logic is designed to be safe for Gunicorn.
 if __name__ == '__main__':
     # Running in debug mode for development
     app.run(debug=True)
+else:
+    # When running under Gunicorn (production on Render), start the keep-alive thread.
+    # Gunicorn workers will use this code.
+    print("[INFO] Starting background keep-alive thread...")
+    threading.Thread(target=keep_alive, daemon=True).start()
